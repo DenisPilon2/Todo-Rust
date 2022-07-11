@@ -1,4 +1,6 @@
-use super::schema::tasks;
+use crate::schema::tasks;
+
+use diesel::{Insertable, Queryable};
 use serde::{Deserialize, Serialize};
 
 #[derive(Queryable, Serialize, Deserialize)]

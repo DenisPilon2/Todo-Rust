@@ -1,11 +1,11 @@
-extern crate to_do;
-extern crate diesel;
+use actix_web::{HttpResponse};
+use crate::db_conn::conn;
 
-use self::to_do::*;
-use std::io::{stdin, Read};
 
-fn main() {
-    let connection = establish_connection();
+use std::io::stdin;
+
+pub async fn add_task() -> HttpResponse {
+    let connection = conn::establish_connection();
 
     println!("What would you like your title to be?");
     let mut title = String::new();
@@ -15,8 +15,9 @@ fn main() {
     let mut body = String::new();
     stdin().read_line(&mut body).unwrap();
 
-    let post = create_post(&connection, title, &body);
+    let post = conn::create_post(&connection, title, &body);
     println!("\nSaved draft {} with id {}", title, post.id);
+    HttpResponse::Ok().body("Task added.")
 }
 
 #[cfg(not(windows))]
