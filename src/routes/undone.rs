@@ -1,17 +1,21 @@
-use actix_web::{web,  HttpResponse};
 extern crate diesel;
-use crate::db_conn::conn;
+
 use crate::schema::tasks::dsl::*;
-use self::diesel::prelude::*;
 use crate::models::todo::Post;
+use actix_web::{web,  HttpResponse};
+use self::diesel::prelude::*;
+use r2d2_diesel::ConnectionManager;
+use diesel::pg::PgConnection;
 
-pub async fn undone_task(path: web::Path<i32>) -> HttpResponse {
+pub type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
-    let connection = conn::establish_connection();
- 
+pub async fn undone_task(path: web::Path<i32>, pool: web::Data<DbPool>) -> HttpResponse {
+
+    let conn = pool.get().expect("couldn't get db connection from pool");
+
     let post = diesel::update(tasks.find(path.into_inner()))
         .set(done.eq(false))
-        .get_result::<Post>(&connection)
+        .get_result::<Post>(&*conn)
         .expect(&format!("Unable to find task"));
     println!("Task undone: {}", post.title);
     HttpResponse::Ok().body(format!("Task undone"))

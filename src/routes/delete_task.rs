@@ -1,15 +1,20 @@
-use actix_web::{web,  HttpResponse};
 extern crate diesel;
-use crate::db_conn::conn;
+
+use actix_web::{web,  HttpResponse};
 use crate::schema::tasks::dsl::*;
 use self::diesel::prelude::*;
+use r2d2_diesel::ConnectionManager;
+use diesel::pg::PgConnection;
 
-pub async fn delete_task(path: web::Path<String>) -> HttpResponse {
+pub type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
-    let connection = conn::establish_connection();
+pub async fn delete_task(path: web::Path<String>, pool: web::Data<DbPool>) -> HttpResponse {
+
+    let conn = pool.get().expect("couldn't get db connection from pool");
+
     let pattern = format!("%{}%", path);
-    /*let num_deleted = */diesel::delete(tasks.filter(title.like(pattern)))
-        .execute(&connection)
+    diesel::delete(tasks.filter(title.like(pattern)))
+        .execute(&*conn)
         .expect("Error deleting task");
 
     HttpResponse::Ok().body(format!("Task deleted: {}", path))
