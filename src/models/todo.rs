@@ -4,7 +4,7 @@ use diesel::{Insertable, Queryable};
 use serde::{Deserialize, Serialize};
 
 #[derive(Queryable, Serialize, Deserialize)]
-pub struct Post {
+pub struct Task {
     pub id: i32,
     pub title: String,
     pub body: String,
@@ -13,7 +13,7 @@ pub struct Post {
 
 #[derive(Insertable)]
 #[table_name="tasks"]
-pub struct NewPost<'a> {
+pub struct NewTask<'a> {
     pub title: &'a str,
     pub body: &'a str,
 }

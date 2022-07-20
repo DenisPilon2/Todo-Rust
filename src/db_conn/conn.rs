@@ -2,7 +2,7 @@ use diesel::prelude::*;
 use diesel::pg::PgConnection;
 use dotenv::dotenv;
 use std::env;
-use crate::models::todo::{Post, NewPost};
+use crate::models::todo::{Task, NewTask};
 use crate::schema;
 use r2d2_diesel::ConnectionManager;
 
@@ -18,9 +18,9 @@ pub fn get_connection_pool() -> DbPool {
     .expect("Failed to create pool.")
   }
 
-pub fn create_post<'a>(conn: &PgConnection, title: &'a str, body: &'a str) -> Post {
+pub fn create_post<'a>(conn: &PgConnection, title: &'a str, body: &'a str) -> Task {
     
-    let new_post = NewPost {
+    let new_post = NewTask {
         title: title,
         body: body,
     };

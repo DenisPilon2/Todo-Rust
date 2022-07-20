@@ -3,7 +3,7 @@ extern crate diesel;
 use actix_web::{web,  HttpResponse};
 use crate::schema::tasks::dsl::*;
 use self::diesel::prelude::*;
-use crate::models::todo::Post;
+use crate::models::todo::Task;
 use r2d2_diesel::ConnectionManager;
 use diesel::pg::PgConnection;
 
@@ -15,8 +15,8 @@ pub async fn done_task(path: web::Path<i32>,  pool: web::Data<DbPool>) -> HttpRe
 
     let post = diesel::update(tasks.find(path.into_inner()))
         .set(done.eq(true))
-        .get_result::<Post>(&*conn)
+        .get_result::<Task>(&*conn)
         .expect(&format!("Unable to find task"));
     println!("Task done: {}", post.title);
-    HttpResponse::Ok().body(format!("Task done"))
+    HttpResponse::Ok().json(post)
 }

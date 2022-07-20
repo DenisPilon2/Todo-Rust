@@ -22,7 +22,7 @@ pub async fn add_task(pool: web::Data<DbPool>) -> HttpResponse {
 
     let post = conn::create_post(&conn, title, &body);
     println!("\nSaved draft {} with id {}", title, post.id);
-    HttpResponse::Ok().body("Task added.")
+    HttpResponse::Ok().json(post)
 }
 
 #[cfg(not(windows))]

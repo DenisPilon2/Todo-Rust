@@ -1,6 +1,6 @@
 extern crate diesel;
 
-use crate::{models::todo::Post};
+use crate::{models::todo::Task};
 use crate::schema::tasks::{dsl::*, self};
 use actix_web::{HttpResponse, Responder};
 use actix_web::{web};
@@ -16,7 +16,7 @@ pub async fn show_tasks(pool: web::Data<DbPool>) -> impl Responder{
 
     match tasks
         .order(tasks::id.desc())
-        .load::<Post>(&*conn)
+        .load::<Task>(&*conn)
         {
             Ok(results) => return HttpResponse::Ok().json(results),
             Err(_) => return HttpResponse::NotFound().finish(),
