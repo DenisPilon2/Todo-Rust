@@ -1,32 +1,36 @@
-use crate::db_conn::conn;
+use crate::models::todo::{NewTask, Task};
+use crate::schema;
 
 use actix_web::{HttpResponse};
 use actix_web::{web};
 use r2d2_diesel::ConnectionManager;
 use diesel::pg::PgConnection;
-use std::io::stdin;
+use serde::Deserialize;
+use diesel::prelude::*;
 
 pub type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
-pub async fn add_task(pool: web::Data<DbPool>) -> HttpResponse {
+#[derive(Deserialize)]
+pub struct FormData {
+    title: String,
+    body: String,
+}
+
+pub async fn add_task(pool: web::Data<DbPool>, form: web::Form<FormData>) -> HttpResponse {
 
     let conn = pool.get().expect("couldn't get db connection from pool");
     
-    println!("What would you like your title to be?");
-    let mut title = String::new();
-    stdin().read_line(&mut title).unwrap();
-    let title = &title[..(title.len() - 1)]; // Drop the newline character
-    println!("\nOk! Let's write {} (Press {} when finished)\n", title, EOF);
-    let mut body = String::new();
-    stdin().read_line(&mut body).unwrap();
+    let new_post = NewTask {
+        title: &form.title,
+        body: &form.body,
+    };
 
-    let post = conn::create_post(&conn, title, &body);
-    println!("\nSaved draft {} with id {}", title, post.id);
-    HttpResponse::Ok().json(post)
+    let new_task:Task = diesel::insert_into(schema::tasks::table)
+        .values(&new_post)
+        .get_result(&*conn)
+        .expect("Error saving new task");
+    
+    println!("New task added: {}", new_task.title);
+    HttpResponse::Ok().json(new_task)
 }
 
-#[cfg(not(windows))]
-const EOF: &'static str = "CTRL+D";
-
-#[cfg(windows)]
-const EOF: &'static str = "CTRL+Z";

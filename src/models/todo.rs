@@ -14,6 +14,6 @@ pub struct Task {
 #[derive(Insertable)]
 #[table_name="tasks"]
 pub struct NewTask<'a> {
-    pub title: &'a str,
-    pub body: &'a str,
+    pub title: &'a String,
+    pub body: &'a String,
 }

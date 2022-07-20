@@ -17,5 +17,6 @@ pub async fn delete_task(path: web::Path<String>, pool: web::Data<DbPool>) -> Ht
         .execute(&*conn)
         .expect("Error deleting task");
 
+    println!("Task deleted: {}", path);
     HttpResponse::Ok().body(format!("Task deleted: {}", path))
 }
